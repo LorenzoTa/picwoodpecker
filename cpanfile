@@ -9,4 +9,4 @@ requires 'MIME::Base64';
 requires 'File::Spec';
 requires 'File::Copy';
 requires 'Fcntl';
-requires 'Time::Hires';
+requires 'Time::HiRes';
