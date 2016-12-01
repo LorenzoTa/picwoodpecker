@@ -178,7 +178,7 @@ my ($post_prog_lbl, $post_prog_btn,
 # see http://www.perlmonks.org/?node_id=1173808
 my %bind_table = (
    '<space>' => sub{&copy_with_name},
-   '<KeyRelease-?>' => \&help_me,
+   '<KeyRelease-question>' => \&help_me,
    '<KeyRelease-p>' => \&autoplay,
 );
 ################################################################################
