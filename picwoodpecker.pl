@@ -16,7 +16,7 @@ use MIME::Base64;
 use File::Spec;
 use File::Copy;
 use Fcntl;
-use Time::Hires;
+use Time::HiRes;
 
 ###
 $|++;
