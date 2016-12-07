@@ -433,7 +433,9 @@ sub setup_draw_area {
     # chek if the window exists
     if (! Exists($phwin)) {
       $phwin = $mw->Toplevel();
-      $phwin->Icon(-image=>$mw->Pixmap(-data => &woodpecker_icon=~s/#296D17/#5c6998/r ));
+      my $icon = &woodpecker_icon;
+	    $icon =~ s/#296D17/#5c6998/;
+      $phwin->Icon(-image=>$mw->Pixmap(-data => $icon ));
       # photo window starts just right (+865) of command window
       $phwin->geometry("0x0+865+0");
 
