@@ -855,14 +855,45 @@ sub get_exif_data {
                                               'Orientation',
                                               'DateTimeOriginal',
                                               'ThumbnailImage');
-
-    my $gd;                               # double dereference only for thumb!!!
-    eval{$gd = GD::Image->newFromJpegData(${$$exifinfo{'ThumbnailImage'}}||'')};
-    if ($@){
-        print "ERROR creating a thumbnail for file [$file].".
-              "I will use an empty one.\n";
-        $gd = GD::Image->new(160,160);
+    ###
+    foreach my $it (qw(ImageWidth ImageHeight Orientation DateTimeOriginal)){
+        unless ($$exifinfo{$it}){
+           print "WARNING: '$it' exif not defined for file [$file]\n" if $debug;
+        }
     }
+    my $temp_gd;
+    unless ($$exifinfo{'ImageHeight'}){
+        print "WRNING: trying to extract height using GD\n" if $debug;
+        $temp_gd = GD::Image->new($file);
+        $$exifinfo{'ImageHeight'} = $temp_gd->height;
+    }
+    unless ($$exifinfo{'ImageWidth'}){
+        print "WRNING: trying to extract width using GD\n" if $debug;
+        $temp_gd ||= GD::Image->new($file);
+        $$exifinfo{'ImageWidth'} = $temp_gd->width;
+    }
+    ###
+    my $gd;
+    if (${$$exifinfo{'ThumbnailImage'}}){     # double dereference only for thumb!!!
+        eval{$gd = GD::Image->newFromJpegData(${$$exifinfo{'ThumbnailImage'}}||'')};
+        if ($@){
+            print "ERROR creating a thumbnail for file [$file].".
+              "I will use an empty one.\n";
+            $gd = GD::Image->new(160,160);
+        }
+    }
+    else {
+        print "WARNING thumb not found in exif tag: creating it with GD\n" if $debug;
+        $temp_gd ||= GD::Image->new($file);
+        $gd->copyResampled($temp_gd,0,0,0,0,
+              160,
+              160,
+              $$exifinfo{'ImageWidth'},
+              $$exifinfo{'ImageHeight'}
+        )
+    }
+    undef $temp_gd;
+    ##
     # handle rotation
     if(defined $$exifinfo{'Orientation'} && $$exifinfo{'Orientation'}=~/(\d+)/){
           my $rot = $1;
