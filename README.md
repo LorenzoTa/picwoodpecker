@@ -1,14 +1,6 @@
 # picwoodpecker
 perl Tk program to choose among photos and copy one or more modified copy
 
-Hello monks,
-after months of sparetime works I'm proud to present you picwoodpecker my last Tk effort (now also on github).
-
-It is application to review and copy pictures with many features.
-
-Suggestions are welcome.Tests with exif tags from different cameras are even more welcome.
-
-The post is splitted in 3 parts: here you have the rendered documentation, below there is the code and finally the POD that must be pasted after the __DATA__ token of the program.
 
                This software is dedicated to my parents, who need to see printed pictures -- 6 July 1966 
 
