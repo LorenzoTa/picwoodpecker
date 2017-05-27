@@ -874,7 +874,7 @@ sub get_exif_data {
     }
     ###
     my $gd;
-    if (${$$exifinfo{'ThumbnailImage'}}){     # double dereference only for thumb!!!
+    if (defined $$exifinfo{'ThumbnailImage'} and ${$$exifinfo{'ThumbnailImage'}}){     # double dereference only for thumb!!!
         eval{$gd = GD::Image->newFromJpegData(${$$exifinfo{'ThumbnailImage'}}||'')};
         if ($@){
             print "ERROR creating a thumbnail for file [$file].".
@@ -883,8 +883,9 @@ sub get_exif_data {
         }
     }
     else {
-        print "WARNING thumb not found in exif tag: creating it with GD\n" if $debug;
+        print "WARNING exif thumb not found in file [$file]: creating it with GD\n" if $debug;
         $temp_gd ||= GD::Image->new($file);
+        $gd=GD::Image->new(160,160);
         $gd->copyResampled($temp_gd,0,0,0,0,
               160,
               160,
@@ -897,7 +898,7 @@ sub get_exif_data {
     # handle rotation
     if(defined $$exifinfo{'Orientation'} && $$exifinfo{'Orientation'}=~/(\d+)/){
           my $rot = $1;
-          print "Rotation detected in thumbnail: $rot\n" if $debug;
+          print "Rotation detected in thumbnail: $rot\t[$file]\n" if $debug;
           $gd = &handle_rotation(\$gd,$rot);
           if ($rot == 90 or $rot == 270){
               # rearrange returned exif infos to adjust the photo window too
