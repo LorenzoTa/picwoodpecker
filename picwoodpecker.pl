@@ -19,6 +19,7 @@ use Fcntl;
 use Time::HiRes;
 
 ###
+my $VERSION=109;
 $|++;
 
 # from GD docs:
