@@ -468,6 +468,11 @@ $phwin->focus;
     if ($display_mode eq 'thumbs') {
         return if $nothumbs;
         return unless @files;
+	# stops autoplay when in thumb view
+        $toggle_autoplay=1;
+        # that set it to 0 and cancel the timer
+        &autoplay;
+        #
         # tadàààà packForget !!
         $photo_label->packForget();
         my $max_x = 164 * ($grid_col + 1) + 50;
