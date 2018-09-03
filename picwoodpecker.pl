@@ -147,6 +147,12 @@ my $hw;
 my $advw;
 # allow files copied to replace file already present
 my $allow_overwrite = 1;
+# dump exif tags on the console if debug is enabled
+my $dump_exif = 0;
+# dump exif label
+my $dump_exif_lbl;
+# dump exif check
+my $dump_exif_chk;
 # bypass original file GD elaboration, simply copying it
 my $bypass_orig_el = 0;
 # jpeg quality label
@@ -297,7 +303,9 @@ my  $fr2 = $mw->Frame(-borderwidth => 2, -relief => 'groove'
     $fr2->Checkbutton(-variable =>\$debug,
                       -command => sub { status('DarkGreen',
                                         "debug informations to the console ".
-                                        ($debug ? 'ENABLED' : 'DISABLED'))
+                                        ($debug ? 'ENABLED' : 'DISABLED'));
+								        map{ $_->configure(-state => $debug ? 'normal' : 'disabled') if defined $_ and $_->Exists
+											}($dump_exif_lbl,$dump_exif_chk);
                       }
       )->pack();
 
@@ -696,7 +704,23 @@ $tk_timer->cancel if $ph_index > $#files;
           print "\tfilled photo data for current: files[$ph_index]\n" if $debug;
           &draw_photo($ph_index);
       }
-      # elaborate preload: filling and clearing actions
+	  # dump exif tags on request
+	  if ($debug and $dump_exif){
+		print "\n\t\tEXIF tags for file: ".$files[$ph_index][0]."\n\n";
+			my $exifTool = new Image::ExifTool;
+			$exifTool-> Options(Binary => 1, Composite => 1,
+								DateFormat => $date_format, #'%Y_%m_%d_%H_%M_%S',
+								Unknown => 2, Verbose => 0);
+			my $exifinfo = $exifTool->ImageInfo($files[$ph_index][0]); 
+			# suppres thumbs data
+			$exifinfo->{ThumbnailImage} = '..thumbnail data skipped for brevity..' if $exifinfo->{ThumbnailImage};
+			
+			foreach my $tag (sort keys %$exifinfo){
+				print "\t\t$tag\t=>\t$$exifinfo{$tag}\n"
+			}
+		print "\n";
+	  }
+	  # elaborate preload: filling and clearing actions
       @prepost = grep {$_ !=  $ph_index &&
                           $_ >= 0 &&
                           $_  <= $#files}
@@ -1177,7 +1201,7 @@ sub advanced_options {
     if (! Exists($advw)) {
       $advw = $mw->Toplevel();
       $advw->Icon(-image=>$mw->Pixmap(-data => &woodpecker_icon));
-      $advw->geometry("620x315+0+0");
+      $advw->geometry("620x355+0+0");
 
       $advw->title("advanced copy options");
       # allow overwrite frame
@@ -1190,6 +1214,22 @@ sub advanced_options {
       $frmult0->Checkbutton(
                                   -variable =>\$allow_overwrite,
         )->pack(-side=>'left',-padx=>10);
+		
+		
+	  # dump exif tags if debug enabled
+      my $frmult00a = $advw->Frame( -borderwidth => 2,
+                                  -relief => 'groove'
+        )->pack(-side=>'top',-padx=>5,-pady=>5,-fill=>'x');
+      $dump_exif_lbl = $frmult00a->Label( -text => "dump exif tags while in debug mode",
+											-state=> 'disabled',
+                                        -disabledforeground=>'gray'
+        )->pack(-side=>'left',-padx=>10);
+      $dump_exif_chk = $frmult00a->Checkbutton(
+                                  -variable =>\$dump_exif,
+								  -state=> 'disabled',
+								  -command => \&advanced_options
+        )->pack(-side=>'left',-padx=>10);
+		
       # bypass original photo GD elaboration (just copy the file) frame
       my $frmult0a = $advw->Frame( -borderwidth => 2,
                                   -relief => 'groove'
@@ -1300,11 +1340,15 @@ sub advanced_options {
       $advw->focus;
 
     }
-    # enable quality selection if jpeg
+	# enable dump exif tags if debug
+	if ( $debug ){
+		map{ $_->configure(-state => 'normal')
+          }($dump_exif_lbl,$dump_exif_chk);
+	}
+	# enable quality selection if jpeg
     if ($out_ext eq 'jpg'){
       map{ $_->configure(-state => 'normal')
           }($jpeg_quality_lbl, $jpeg_quality_ent);
-
     }
     else{
       map{ $_->configure(-state => 'disabled')
@@ -1733,7 +1777,8 @@ thumbnail (if not present showing a black empty one).
 Orientation of the image is handled automatically for thumbnails and main photo.
 
 Advanced options are available to manipulate how many photos are copied, in which
-format and let you to postprocess via C<exiftool> each created image.
+format and let you to postprocess via C<exiftool> each created image. You can also
+dump exif tags while debug is in effect.
 
 The program uses L<GD> for image manipulation and L<Image::ExifTool> to load infos
 from photos and in the postprocess of them.
@@ -1814,6 +1859,10 @@ copied.
 
 The C<allow overwrite> if checked silently overwrite a photo wich has the same
 name of what is composed for the current one.
+
+The C<dump exif tags while in debug mode> is available only if C<debug> is checked
+on the main window. Exif tags are dumped in the console and any thumbnail data is
+skipped if present.
 
 C<bypass original file elaboration (simple copy)> make a copy of the original file
 using the new name but without processing it with L<GD>
