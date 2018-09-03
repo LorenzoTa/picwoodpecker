@@ -105,7 +105,7 @@ Basically the program will load all jpg files found globbing the path given with
 
 Orientation of the image is handled automatically for thumbnails and main photo.
 
-Advanced options are available to manipulate how many photos are copied, in which format and let you to postprocess via exiftool each created image.
+Advanced options are available to manipulate how many photos are copied, in which format and let you to postprocess via exiftool each created image. You can also dump exif tags while debug is in effect.
 
 The program uses GD for image manipulation and Image::ExifTool to load infos from photos and in the postprocess of them.
 
@@ -142,6 +142,8 @@ advanced copy options
 This menu lets you to have a granular control about how original photo will be copied.
 
 The allow overwrite if checked silently overwrite a photo wich has the same name of what is composed for the current one.
+
+The dump exif tags while in debug mode is available only if debug is checked on the main window. Exif tags are dumped in the console and any thumbnail data is skipped if present.
 
 bypass original file elaboration (simple copy) make a copy of the original file using the new name but without processing it with GD
 
