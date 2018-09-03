@@ -1777,7 +1777,8 @@ thumbnail (if not present showing a black empty one).
 Orientation of the image is handled automatically for thumbnails and main photo.
 
 Advanced options are available to manipulate how many photos are copied, in which
-format and let you to postprocess via C<exiftool> each created image.
+format and let you to postprocess via C<exiftool> each created image. You can also
+dump exif tags while debug is in effect.
 
 The program uses L<GD> for image manipulation and L<Image::ExifTool> to load infos
 from photos and in the postprocess of them.
@@ -1858,6 +1859,10 @@ copied.
 
 The C<allow overwrite> if checked silently overwrite a photo wich has the same
 name of what is composed for the current one.
+
+The C<dump exif tags while in debug mode> is available only if C<debug> is checked
+on the main window. Exif tags are dumped in the console and any thumbnail data is
+skipped if present.
 
 C<bypass original file elaboration (simple copy)> make a copy of the original file
 using the new name but without processing it with L<GD>
